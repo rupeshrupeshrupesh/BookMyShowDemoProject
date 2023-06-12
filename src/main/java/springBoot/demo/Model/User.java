@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -27,5 +29,9 @@ public class User {
     private String mobile;
     private String pwd;
     private Role role;
+
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @Column(name = "id")
+    private List<Movies> movies;
 
 }
