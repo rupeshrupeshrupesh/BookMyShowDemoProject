@@ -3,19 +3,17 @@ package springBoot.demo.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import springBoot.demo.DTO.EmailMailDTO;
 import springBoot.demo.Model.LoginUserDTO;
-import springBoot.demo.Model.Role;
+import springBoot.demo.Model.Movies;
 import springBoot.demo.Model.User;
 import springBoot.demo.Repository.UserRepo;
-
+import springBoot.demo.ServiceLayer.EmailService;
+import springBoot.demo.ServiceLayer.UserService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @Validated
@@ -24,49 +22,56 @@ public class UserController {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    private EmailService emailService;
+
+
     @PostMapping("/usersLogin")
     public int userLogin(@RequestBody LoginUserDTO loginUser) {
 
+        return userService.userLogin(loginUser);
 
-        boolean isPresent = userRepo.existsByEmail(loginUser.getEmail());
-        User user = userRepo.findByEmail(loginUser.getEmail());
-
-
-        try {
-            if (isPresent && user.getPwd().equals(loginUser.getPwd())) {
-                return 1;
-            } else {
-                return 2;
-            }
-
-        } catch (
-                Exception e) {
-
-            e.printStackTrace();
-            return 5;
-        }
 
     }
 
     @PostMapping("/userRegister")
-    public String Admin(@RequestBody @Valid User user) {
-
-        boolean b = userRepo.existsByEmail(user.getEmail());
-
-        try {
-           if (!b) {
-                return userRepo.save(user).toString();
-            } else {
-                return "already exits";
-            }
+    public String userRegister(@RequestBody @Valid User user) {
 
 
-        } catch (Exception e) {
-            System.out.println("Ex: " + e.getMessage());
-            return "null";
-        }
+        return userService.userRegister(user);
 
 
+    }
+
+
+
+    @PostMapping("/sendotp")
+    public String sendOtpEmail(@RequestBody EmailMailDTO recipientEmail) {
+        return emailService.sendOtpEmail(recipientEmail.getEmail());
+    }
+
+
+    @PutMapping("/updatePassWord")
+    public String updateandResetPassWord(@RequestBody User user)
+    {
+        return emailService.updateAndResetPassword(user);
+
+    }
+
+
+    @GetMapping("/booking")
+    public String booking(@RequestParam int userid,@RequestParam int movieId){
+        return userService.bookingByUser(userid,movieId);
+    }
+
+
+    @GetMapping("/getAllMovieByUser")
+
+    public List<Movies> getAllMovieByUser(@RequestParam int userId){
+        return userService.getAllMovieByUser(userId);
     }
 
 }
